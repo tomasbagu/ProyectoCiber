@@ -122,31 +122,31 @@ INSERT INTO products (name, description, price_cents, image_url) VALUES
 (
   'Arepa de Queso',
   'Deliciosa arepa rellena de queso blanco fresco. Un clásico venezolano que no puede faltar en tu mesa.',
-  450000,
+  4500,
   'https://imag.bonviveur.com/arepas-colombianas-con-queso-partidas.jpg'
 ),
 (
   'Arepa Reina Pepiada',
   'Arepa rellena con ensalada de pollo, aguacate y mayonesa. El sabor tradicional que conquistó al mundo.',
-  650000,
+  6500,
   'https://d2j9trpqxd6hrn.cloudfront.net/uploads/recipe/picture/151/IMG_8303-500.jpg'
 ),
 (
   'Arepa Pabellón',
   'Arepa completa con carne mechada, caraotas negras, tajadas de plátano maduro y queso rallado. Un festival de sabores.',
-  850000,
+  8500,
   'https://comidasvenezolanas.org/assets/images/arepa-pabellon_800x534.webp'
 ),
 (
   'Arepa Domino',
   'Arepa rellena con caraotas negras y queso blanco rallado. Simple, deliciosa y nutritiva.',
-  550000,
+  5500,
   'https://theworldinrecipes.s3.amazonaws.com/uploads/recipe/picture/930/arepa_3.jpg'
 ),
 (
   'Arepa Pelua',
   'Arepa con carne mechada jugosa y queso amarillo gratinado. Una explosión de sabor en cada bocado.',
-  750000,
+  7500,
   'https://i0.wp.com/norkaluque.net/wp-content/uploads/2021/09/arepa-pelua.jpg'
 ) ON CONFLICT DO NOTHING;
 
