@@ -17,7 +17,6 @@ export async function checkout(req, res) {
   const { items, payment, coupon } = req.body;
 
   // Validar tarjeta con Luhn (solo formato)
-  console.log("Validating card number with Luhn:", payment.cardNumber);
   if (!luhnCheck(payment.cardNumber)) return res.status(400).json({ error: "Número de tarjeta inválido (solo para simulación)" });
 
   // Calcular total consultando productos (evitar confiar en unit prices del cliente)
