@@ -1,0 +1,79 @@
+/* GENERAL */
+.home {
+  font-family: "Georgia", "Times New Roman", serif;
+  color: #111;
+  background-color: #fafafa;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 120px 20px 100px;
+  background-color: #fefefe;
+}
+
+.hero-title {
+  font-size: 3.2rem;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: #555;
+  margin-bottom: 36px;
+}
+
+.hero-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 14px 34px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.hero-button:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+/* FEATURES */
+.features {
+  text-align: center;
+  padding: 100px 40px;
+  border-top: 1px solid #e5e5e5;
+  background-color: #fff;
+}
+
+.features h2 {
+  font-size: 1.9rem;
+  margin-bottom: 50px;
+  font-weight: 500;
+}
+
+.feature-list {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 70px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.feature-item h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.feature-item p {
+  font-size: 0.95rem;
+  color: #555;
+  max-width: 260px;
+  margin: 0 auto;
+  line-height: 1.5;
+}

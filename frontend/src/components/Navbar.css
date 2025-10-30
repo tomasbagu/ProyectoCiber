@@ -1,0 +1,103 @@
+.navbar {
+  background: #0e0e0e;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 40px;
+}
+
+.nav-logo {
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 10px;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+.cart-icon {
+  font-size: 1.2rem;
+}
+
+/* ---------- PERFIL ---------- */
+.profile-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-circle {
+  width: 34px;
+  height: 34px;
+  background: #fff;
+  color: #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.profile-menu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: #fff;
+  color: #111;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  width: 220px;
+  padding: 10px 0;
+  z-index: 1000;
+}
+
+.profile-info {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-info strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.profile-info p {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.profile-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.profile-menu button:hover {
+  background: #f8f8f8;
+}
+
+.logout-btn {
+  color: #c60000;
+  font-weight: 600;
+}
+
+.logout-btn:hover {
+  background: #ffecec;
+}

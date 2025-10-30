@@ -1,0 +1,250 @@
+/* ===========================
+   PRODUCT DETAIL PAGE
+   =========================== */
+
+.pd-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 50px 25px;
+  background: #faf9f8;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  color: #111;
+}
+
+/* ---------- BOTÓN VOLVER ---------- */
+.pd-back {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 25px;
+  transition: background 0.3s;
+}
+
+.pd-back:hover {
+  background: #333;
+}
+
+/* ---------- SECCIÓN PRINCIPAL ---------- */
+.pd-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 40px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+}
+
+/* ---------- IMAGEN ---------- */
+.pd-image {
+  flex: 1 1 48%;
+  text-align: center;
+}
+
+.pd-image img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.pd-image img:hover {
+  transform: scale(1.03);
+}
+
+/* ---------- INFORMACIÓN ---------- */
+.pd-info {
+  flex: 1 1 48%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pd-tag {
+  background: #f1f1f1;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+  color: #444;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.pd-info h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 10px;
+}
+
+.pd-description {
+  color: #444;
+  line-height: 1.6;
+  font-size: 1rem;
+  margin-bottom: 25px;
+}
+
+.pd-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #000;
+}
+
+/* ---------- BOTÓN AGREGAR ---------- */
+.pd-cart-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.3s ease;
+}
+
+.pd-cart-btn:hover {
+  background: #333;
+}
+
+/* ---------- COMENTARIOS ---------- */
+.pd-comments {
+  margin-top: 60px;
+  padding-top: 30px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.pd-comments-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: #1a1a1a;
+}
+
+.pd-comment-box {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 25px 30px;
+  margin-bottom: 30px;
+}
+
+.pd-comment-box label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.pd-rating-input {
+  margin-bottom: 20px;
+}
+
+.pd-stars {
+  font-size: 1.6rem;
+  color: #ddd;
+  cursor: pointer;
+}
+
+.pd-stars .star {
+  margin-right: 5px;
+  transition: color 0.2s;
+}
+
+.pd-stars .star.filled {
+  color: #f8b400;
+}
+
+.pd-stars .star:hover {
+  color: #ffcc33;
+}
+
+.pd-textarea textarea {
+  width: 100%;
+  min-height: 90px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px 12px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+  color: #333;
+}
+
+.pd-publish {
+  background: #000;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s;
+}
+
+.pd-publish:hover {
+  background: #333;
+}
+
+.pd-comments-list {
+  margin-top: 30px;
+}
+
+.pd-comment {
+  background: #fff;
+  border-radius: 6px;
+  padding: 18px 22px;
+  margin-bottom: 15px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.pd-comment-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.pd-comment-head strong {
+  font-size: 1rem;
+  color: #222;
+}
+
+.pd-comment-date {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.pd-comment-rating {
+  color: #f8b400;
+  margin-bottom: 6px;
+}
+
+.pd-comment-text {
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.pd-no-comments {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+  margin-top: 15px;
+}
+
+.pd-error {
+  color: #b80000;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}

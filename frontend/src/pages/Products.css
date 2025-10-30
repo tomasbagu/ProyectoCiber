@@ -1,0 +1,116 @@
+/* ===============================
+   TIENDA / PRODUCTS PAGE
+   =============================== */
+
+.products-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 50px 20px;
+  background-color: #faf9f8;
+}
+
+/* ---------- HEADER ---------- */
+.products-page .header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.products-page h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 10px;
+}
+
+.products-page p {
+  color: #444;
+  margin-bottom: 25px;
+  font-size: 1rem;
+}
+
+/* ---------- CATEGORIES ---------- */
+.categories {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.categories button {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-weight: 600;
+  color: #111;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.categories button:hover {
+  background: #f3f3f3;
+}
+
+.categories button.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* ---------- GRID ---------- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+/* ---------- CARD ---------- */
+.product-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.product-image img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+}
+
+/* ---------- INFO ---------- */
+.product-info {
+  padding: 16px 18px;
+  text-align: center;
+}
+
+.product-info h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.product-info p {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000;
+}
+
+/* ---------- NO PRODUCTS ---------- */
+.no-products {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #777;
+  font-style: italic;
+  margin-top: 20px;
+}
