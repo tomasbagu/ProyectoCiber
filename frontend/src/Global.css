@@ -1,0 +1,27 @@
+/* ---------- FUENTE GLOBAL ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: light dark;
+}
+
+/* Opcional: fondo global */
+body {
+  background-color: #faf9f8;
+  color: #111;
+  line-height: 1.6;
+}
+
+/* Ajuste para enlaces */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Ajuste para botones */
+button {
+  font-family: inherit;
+  cursor: pointer;
+}

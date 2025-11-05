@@ -116,3 +116,41 @@
   margin-bottom: 10px;
   text-align: center;
 }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 35px; /* espacio para el botón 👁️ */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #555;
+  transition: 0.2s;
+}
+
+.toggle-password:hover {
+  color: #000;
+  transform: scale(1.1);
+}
+
+.form-error {
+  background: #fff4e5;
+  color: #b85c00;
+  border: 1px solid #ffc26f;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+}

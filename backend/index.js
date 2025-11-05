@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
-
+import couponRoutes from "./routes/coupon.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import { ensureBucket } from "./config/minio.js";
@@ -32,6 +32,7 @@ app.use("/api/products", productsRoutes);
 app.use("/api/comments", commentsRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/orders", ordersRoutes);
+app.use("/api/coupons", couponRoutes);
 
 app.get("/", (req, res) => res.json({ message: "Arepabuelas API segura 🧤" }));
 

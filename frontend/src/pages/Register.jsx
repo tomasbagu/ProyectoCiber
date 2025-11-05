@@ -14,6 +14,8 @@ export default function Register() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // 👁️ nuevo
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // 👁️ nuevo
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -35,14 +37,11 @@ export default function Register() {
     }
 
     try {
-      // 👇 Si tu backend usa multipart/form-data
       const data = new FormData();
       data.append("name", formData.name);
       data.append("email", formData.email);
       data.append("password", formData.password);
-      if (formData.profilePic) {
-        data.append("profilePic", formData.profilePic);
-      }
+      if (formData.profilePic) { data.append("photo", formData.profilePic);}
 
       const res = await api.post("/auth/register", data, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -54,11 +53,15 @@ export default function Register() {
         });
       }
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Error al registrar usuario.");
-    } finally {
-      setLoading(false);
-    }
+        console.error("Error al registrar:", err);
+        const msg = err.response?.data?.error;
+
+        if (msg === "Correo ya registrado") {
+          setError("⚠️ Este correo ya está en uso. Intenta iniciar sesión.");
+        } else {
+          setError("⚠️ Ocurrió un error al registrar. Intenta nuevamente.");
+        }
+      }
   };
 
   return (
@@ -93,24 +96,44 @@ export default function Register() {
           <div className="form-row">
             <div className="form-group">
               <label>Contraseña</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
 
             <div className="form-group">
               <label>Confirmar Contraseña</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-              />
+              <div className="password-wrapper">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
+                >
+                  {showConfirmPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
           </div>
 

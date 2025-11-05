@@ -1,3 +1,4 @@
+/* ---------- NAVBAR BASE ---------- */
 .navbar {
   background: #0e0e0e;
   color: #fff;
@@ -5,6 +6,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .nav-logo {
@@ -12,21 +16,30 @@
   color: #fff;
   text-decoration: none;
   font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .nav-links a {
   color: #fff;
   text-decoration: none;
-  margin: 0 10px;
+  margin: 0 8px;
   font-weight: 500;
+  transition: opacity 0.3s;
 }
 
 .nav-links a:hover {
-  text-decoration: underline;
+  opacity: 0.8;
 }
 
 .cart-icon {
   font-size: 1.2rem;
+  text-decoration: none;
 }
 
 /* ---------- PERFIL ---------- */
@@ -36,8 +49,8 @@
 }
 
 .profile-circle {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   background: #fff;
   color: #000;
   border-radius: 50%;
@@ -47,6 +60,12 @@
   cursor: pointer;
   font-weight: 700;
   font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.profile-circle:hover {
+  background: #f3f3f3;
+  transform: scale(1.05);
 }
 
 .profile-menu {
@@ -55,15 +74,28 @@
   right: 0;
   background: #fff;
   color: #111;
-  border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-  width: 220px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  width: 230px;
   padding: 10px 0;
-  z-index: 1000;
+  z-index: 999;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- INFO DEL USUARIO ---------- */
 .profile-info {
-  padding: 10px 15px;
+  padding: 12px 16px;
   border-bottom: 1px solid #eee;
 }
 
@@ -71,26 +103,40 @@
   display: block;
   font-size: 0.95rem;
   margin-bottom: 2px;
+  color: #111;
 }
 
 .profile-info p {
   font-size: 0.85rem;
-  color: #666;
+  color: #555;
 }
 
+/* ---------- BOTONES DEL MENÚ ---------- */
 .profile-menu button {
   display: block;
   width: 100%;
   text-align: left;
   background: none;
   border: none;
-  padding: 10px 15px;
+  padding: 10px 16px;
   font-size: 0.9rem;
   cursor: pointer;
+  color: #333;
+  transition: background 0.2s;
 }
 
 .profile-menu button:hover {
   background: #f8f8f8;
+}
+
+/* 🔹 Botón especial para admin */
+.profile-admin {
+  color: #0a58ca;
+  font-weight: 600;
+}
+
+.profile-admin:hover {
+  background: #e8f0ff;
 }
 
 .logout-btn {

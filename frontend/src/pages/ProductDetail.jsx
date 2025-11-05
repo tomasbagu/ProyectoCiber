@@ -54,9 +54,10 @@ export default function ProductDetail() {
     try {
       setPosting(true);
       await api.post(`/comments/${id}`, {
-        rating: commentRating,
-        text: sanitizedComment,
-      });
+      rating: commentRating,
+      content: sanitizedComment, // 👈 el backend espera "content"
+    });
+
 
       const res = await api.get(`/comments/${id}`);
       setComments(res.data || []);
@@ -193,7 +194,7 @@ export default function ProductDetail() {
                 <div className="pd-comment-rating">
                   {"★".repeat(c.rating || 0)}{"☆".repeat(5 - (c.rating || 0))}
                 </div>
-                <p className="pd-comment-text">{c.text}</p>
+                <p className="pd-comment-text">{c.content}</p>
               </div>
             ))
           )}

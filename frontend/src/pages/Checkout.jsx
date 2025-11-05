@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
+import api from "../api/axios";
+import { auth } from "../auth/auth";
 import "./Checkout.css";
 
 export default function Checkout() {
@@ -12,16 +14,26 @@ export default function Checkout() {
   const [cvv, setCvv] = useState("");
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [discountFixed, setDiscountFixed] = useState(0);
 
+  // Cargar productos y cupón del carrito
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartItems(storedCart);
+    setCouponCode(localStorage.getItem("couponCode") || "");
+    setDiscountPercent(
+      Number(localStorage.getItem("discountPercent") || 0) / 100
+    );
+    setDiscountFixed(Number(localStorage.getItem("discountFixed") || 0));
   }, []);
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + (item.price_cents || 0) * (item.quantity || 1),
     0
   );
+  const total = Math.max(0, subtotal * (1 - discountPercent) - discountFixed);
 
   const formatPrice = (value) =>
     new Intl.NumberFormat("es-CO", {
@@ -30,11 +42,10 @@ export default function Checkout() {
       minimumFractionDigits: 0,
     }).format(value);
 
-  const handlePayment = (e) => {
+  const handlePayment = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Limpieza y validaciones básicas
     const cleanCardNumber = DOMPurify.sanitize(cardNumber.replace(/\s+/g, ""));
     const cleanCardName = DOMPurify.sanitize(cardName.trim());
     const cleanExpiry = DOMPurify.sanitize(expiry.trim());
@@ -57,13 +68,59 @@ export default function Checkout() {
       return;
     }
 
+    const [exp_month_raw, exp_year_raw] = cleanExpiry
+      .split("/")
+      .map((v) => parseInt(v, 10));
+    const exp_month = exp_month_raw;
+    const exp_year = exp_year_raw < 100 ? 2000 + exp_year_raw : exp_year_raw;
+
+    const orderData = {
+      items: cartItems.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+      })),
+      payment: {
+        cardNumber: cleanCardNumber,
+        cardName: cleanCardName,
+        exp_month,
+        exp_year,
+        cvv: cleanCvv,
+      },
+      coupon: couponCode || null,
+    };
+
     setProcessing(true);
 
-    setTimeout(() => {
+    try {
+      const { data } = await api.post("/checkout", orderData, {
+        headers: {
+          Authorization: `Bearer ${auth.getAccess()}`,
+          "Content-Type": "application/json",
+        },
+      });
+
       localStorage.removeItem("cart");
+      localStorage.removeItem("couponCode");
+      localStorage.removeItem("discountPercent");
+      localStorage.removeItem("discountFixed");
+
+      navigate("/orders", {
+        state: { total, message: "Compra realizada con éxito" },
+      });
+    } catch (err) {
+      console.error("❌ Error en checkout:", err.response || err);
+      if (err.response?.data?.errors) {
+        setError(
+          `Error de validación: ${err.response.data.errors
+            .map((e) => e.msg)
+            .join(", ")}`
+        );
+      } else {
+        setError(err.response?.data?.error || "Error al procesar la compra.");
+      }
+    } finally {
       setProcessing(false);
-      navigate("/success", { state: { total: subtotal } });
-    }, 2000);
+    }
   };
 
   return (
@@ -76,7 +133,7 @@ export default function Checkout() {
       </div>
 
       <div className="checkout-layout">
-        {/* --------- INFORMACIÓN DE PAGO --------- */}
+        {/* -------- INFORMACIÓN DE PAGO -------- */}
         <div className="checkout-payment">
           <h3>
             💳 <span>Información de Pago</span>
@@ -85,9 +142,8 @@ export default function Checkout() {
           <div className="checkout-warning">
             ⚠️ <strong>Simulación de Pago - Solo para Fines Educativos</strong>
             <p>
-              Este es un sistema de pago simulado. No se procesarán pagos
-              reales. Puedes usar cualquier número de tarjeta de 16 dígitos para
-              probar.
+              Este es un sistema de pago simulado. No se procesan pagos reales.
+              Usa cualquier tarjeta de 16 dígitos válida (ej. 4242 4242 4242 4242).
             </p>
           </div>
 
@@ -140,9 +196,7 @@ export default function Checkout() {
                   placeholder="123"
                   maxLength="4"
                   value={cvv}
-                  onChange={(e) =>
-                    setCvv(e.target.value.replace(/[^0-9]/g, ""))
-                  }
+                  onChange={(e) => setCvv(e.target.value.replace(/[^0-9]/g, ""))}
                   required
                 />
               </div>
@@ -150,13 +204,21 @@ export default function Checkout() {
 
             {error && <div className="checkout-error">{error}</div>}
 
-            <button type="submit" className="checkout-pay-btn" disabled={processing}>
-              {processing ? "Procesando..." : `Pagar ${formatPrice(subtotal)}`}
+            <button
+              type="submit"
+              className="checkout-pay-btn"
+              disabled={processing}
+            >
+              {processing
+                ? "Procesando..."
+                : `Pagar ${formatPrice(total)}${
+                    couponCode ? " (con descuento)" : ""
+                  }`}
             </button>
           </form>
         </div>
 
-        {/* --------- RESUMEN DEL PEDIDO --------- */}
+        {/* -------- RESUMEN DEL PEDIDO -------- */}
         <div className="checkout-summary">
           <h3>Resumen del Pedido</h3>
           <ul>
@@ -171,18 +233,29 @@ export default function Checkout() {
           </ul>
 
           <hr />
+          <p>Subtotal: {formatPrice(subtotal)}</p>
+
+          {couponCode && (
+            <p style={{ color: "green" }}>
+              Cupón aplicado: <strong>{couponCode}</strong>
+            </p>
+          )}
+
+          {discountPercent > 0 && (
+            <p>Descuento: -{formatPrice(subtotal * discountPercent)}</p>
+          )}
+          {discountFixed > 0 && <p>Descuento: -{formatPrice(discountFixed)}</p>}
+
           <div className="summary-total">
             <span>Total a Pagar</span>
-            <span>{formatPrice(subtotal)}</span>
+            <span>{formatPrice(total)}</span>
           </div>
 
           <div className="checkout-delivery">
             <strong>Información de Entrega:</strong>
             <p>
               Recoge tu pedido en: <br />
-              <em>
-                Arepabuelas de la Esquina, Ventaquemada, Boyacá
-              </em>
+              <em>Arepabuelas de la Esquina, Ventaquemada, Boyacá</em>
             </p>
           </div>
         </div>
