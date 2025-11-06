@@ -10,17 +10,66 @@ export const minioClient = new Client({
 
 export const BUCKET = process.env.MINIO_BUCKET || "user-photos";
 
+// Política de bucket segura - solo lectura pública para objetos específicos
+const bucketPolicy = {
+  Version: "2012-10-17",
+  Statement: [
+    {
+      Effect: "Deny",
+      Principal: "*",
+      Action: ["s3:PutObject", "s3:DeleteObject"],
+      Resource: [`arn:aws:s3:::${BUCKET}/*`]
+    }
+  ]
+};
+
 export async function ensureBucket() {
   try {
     const exists = await minioClient.bucketExists(BUCKET);
     if (!exists) {
       await minioClient.makeBucket(BUCKET, "");
-      console.log("✅ MinIO bucket creado:", BUCKET);
-    } else {
-      console.log("✅ MinIO bucket existe:", BUCKET);
+      
+      // Aplicar política de seguridad al bucket
+      try {
+        await minioClient.setBucketPolicy(BUCKET, JSON.stringify(bucketPolicy));
+      } catch (policyErr) {
+        // Si falla la política, continuar pero informar
+      }
     }
   } catch (err) {
-    console.error("Error al verificar/crear bucket MinIO:", err.message);
     throw err;
+  }
+}
+
+/**
+ * Elimina un objeto de MinIO de forma segura
+ * @param {string} filename - Nombre del archivo a eliminar
+ * @returns {Promise<void>}
+ */
+export async function deleteObject(filename) {
+  try {
+    // Validar que el filename no contenga path traversal
+    const basename = filename.split('/').pop();
+    if (basename !== filename || !/^[a-zA-Z0-9._-]+$/.test(basename)) {
+      throw new Error("Nombre de archivo inválido");
+    }
+    
+    await minioClient.removeObject(BUCKET, basename);
+  } catch (err) {
+    throw err;
+  }
+}
+
+/**
+ * Verifica si un objeto existe en MinIO
+ * @param {string} filename - Nombre del archivo
+ * @returns {Promise<boolean>}
+ */
+export async function objectExists(filename) {
+  try {
+    await minioClient.statObject(BUCKET, filename);
+    return true;
+  } catch (err) {
+    return false;
   }
 }

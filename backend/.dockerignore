@@ -1,0 +1,33 @@
+# Node
+node_modules
+npm-debug.log*
+package-lock.json
+
+# Environment
+.env
+.env.*.local
+
+# Logs
+logs
+*.log
+
+# Git
+.git
+.gitignore
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Build artifacts
+dist
+build
+coverage
+
+# Temporary
+*.tmp
+*.temp
+*.swp
+
+# Docker
+.dockerignore

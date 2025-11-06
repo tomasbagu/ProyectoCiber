@@ -90,9 +90,15 @@ export default function Cart() {
       localStorage.removeItem("couponCode");
       localStorage.removeItem("discountPercent");
       localStorage.removeItem("discountFixed");
-      setCouponMessage(
-        "❌ " + (err.response?.data?.error || "Error al validar el cupón")
-      );
+      
+      // Mensajes más específicos para cada error
+      if (err.response?.status === 401) {
+        setCouponMessage("❌ Debes iniciar sesión para usar cupones");
+      } else if (err.response?.data?.error) {
+        setCouponMessage("❌ " + err.response.data.error);
+      } else {
+        setCouponMessage("❌ Error al validar el cupón");
+      }
     } finally {
       setLoadingCoupon(false);
     }

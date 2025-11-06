@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../auth/auth";
 import "./Navbar.css";
 
@@ -17,9 +17,13 @@ export default function NavbarLogged() {
 
   // ✅ Cerrar sesión
   const handleLogout = async () => {
-    await auth.logout(); // hace POST /auth/logout y limpia tokens
-    navigate("/");       
-    window.location.reload(); // recarga navbar
+    try {
+      await auth.logout(); // hace POST /auth/logout y limpia tokens
+      navigate("/");
+      window.location.reload(); // refresca el navbar
+    } catch (err) {
+      console.error("Error al cerrar sesión:", err);
+    }
   };
 
   // ✅ Cerrar menú si clic fuera
@@ -35,25 +39,21 @@ export default function NavbarLogged() {
 
   return (
     <nav className="navbar">
+      {/* ---------- LADO IZQUIERDO ---------- */}
       <div className="nav-left">
-        <h2
-          className="nav-logo"
-          onClick={() => navigate("/")}
-          style={{ cursor: "pointer" }}
-        >
+        <Link to="/" className="nav-logo">
           Arepabuelas de la Esquina
-        </h2>
+        </Link>
       </div>
 
+      {/* ---------- LADO DERECHO ---------- */}
       <div className="nav-links">
-        <a onClick={() => navigate("/")}>Inicio</a>
-        <a onClick={() => navigate("/products")}>Tienda</a>
-        <a onClick={() => navigate("/about")}>Acerca de</a>
-        <a onClick={() => navigate("/blog")}>Blog</a>
-        <a onClick={() => navigate("/contact")}>Contacto</a>
-        <a onClick={() => navigate("/cart")} className="cart-icon">
-          🛒
-        </a>
+        <Link to="/">Inicio</Link>
+        <Link to="/products">Tienda</Link>
+        <Link to="/about">Acerca de</Link>
+        <Link to="/blog">Blog</Link>
+        <Link to="/contact">Contacto</Link>
+        <Link to="/cart" className="cart-icon">🛒</Link>
 
         {/* ---------- MENÚ DE PERFIL ---------- */}
         <div className="profile-wrapper" ref={menuRef}>
@@ -61,7 +61,19 @@ export default function NavbarLogged() {
             className="profile-circle"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            {user?.name?.[0]?.toUpperCase() || "👤"}
+            {user?.photo_url ? (
+              <img 
+                src={user.photo_url} 
+                alt={user.name} 
+                className="profile-image"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentElement.textContent = user?.name?.[0]?.toUpperCase() || "👤";
+                }}
+              />
+            ) : (
+              user?.name?.[0]?.toUpperCase() || "👤"
+            )}
           </div>
 
           {menuOpen && (

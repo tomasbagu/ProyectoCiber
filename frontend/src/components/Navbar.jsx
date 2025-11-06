@@ -13,13 +13,22 @@ useEffect(() => {
   try {
     const token = auth.getAccess();
     if (token) {
-      // Si tienes guardado el usuario en localStorage, recupéralo
-      const userData = JSON.parse(localStorage.getItem("user"));
+      // Obtener usuario desde sessionStorage usando auth.getUser()
+      const userData = auth.getUser();
       if (userData) setUser(userData);
     }
   } catch (err) {
     console.error("Error al cargar la sesión:", err);
   }
+
+  // Listener para actualizar el navbar cuando cambie la sesión
+  const handleSessionChange = () => {
+    const userData = auth.getUser();
+    setUser(userData);
+  };
+
+  window.addEventListener("sessionChange", handleSessionChange);
+  return () => window.removeEventListener("sessionChange", handleSessionChange);
 }, []);
 
   // Cerrar menú si se hace clic fuera
@@ -64,7 +73,19 @@ useEffect(() => {
               className="profile-circle"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              {user?.name?.[0]?.toUpperCase() || "👤"}
+              {user?.photo_url ? (
+                <img 
+                  src={user.photo_url} 
+                  alt={user.name} 
+                  className="profile-image"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.textContent = user?.name?.[0]?.toUpperCase() || "👤";
+                  }}
+                />
+              ) : (
+                user?.name?.[0]?.toUpperCase() || "👤"
+              )}
             </div>
 
             {menuOpen && (

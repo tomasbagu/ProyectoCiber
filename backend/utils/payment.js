@@ -1,6 +1,20 @@
 import crypto from "crypto";
 
-// Luhn check
+/**
+ * ⚠️ ADVERTENCIA: UTILIDADES DE PAGO SIMULADAS
+ * 
+ * Estas funciones son SOLO para fines educativos y demostración.
+ * NO usar en producción con tarjetas reales.
+ * 
+ * En un sistema real:
+ * - Usar SDK del procesador de pagos (Stripe, PayPal, etc.)
+ * - NO manejar datos de tarjetas en tu servidor
+ * - Tokenizar en el frontend directamente con el procesador
+ * - Cumplir con PCI DSS
+ */
+
+// Luhn check - Valida el formato del número de tarjeta
+// Nota: Una tarjeta puede pasar Luhn y ser inválida (solo valida el formato)
 export function luhnCheck(number) {
   const cleaned = ("" + number).replace(/\D/g, "");
   let sum = 0;
@@ -25,7 +39,9 @@ export function detectBrand(number) {
   return "Unknown";
 }
 
-// generar provider token simulado (uuid-like)
+// generar provider token simulado (256 bits de entropía)
+// Para un sistema de pago real, esto vendría del procesador de pagos
 export function generateProviderToken() {
-  return crypto.randomUUID();
+  // 32 bytes = 256 bits de entropía criptográficamente segura
+  return crypto.randomBytes(32).toString('hex'); // 64 caracteres hex
 }

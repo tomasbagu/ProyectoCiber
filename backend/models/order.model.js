@@ -35,9 +35,25 @@ export async function getOrdersForUser(userId) {
   return res.rows;
 }
 
-export async function getOrderDetails(orderId, userId) {
-  // only returns if belongs to user or admin depending on caller (check in controller)
-  const order = await pool.query(`SELECT * FROM orders WHERE id = $1`, [orderId]);
-  const items = await pool.query(`SELECT oi.*, p.name FROM order_items oi LEFT JOIN products p ON oi.product_id = p.id WHERE oi.order_id = $1`, [orderId]);
+export async function getOrderDetails(orderId, userId, isAdmin = false) {
+  // Validar ownership: solo el dueño o admin pueden ver la orden
+  const ownershipCheck = isAdmin 
+    ? `SELECT * FROM orders WHERE id = $1`
+    : `SELECT * FROM orders WHERE id = $1 AND user_id = $2`;
+  
+  const params = isAdmin ? [orderId] : [orderId, userId];
+  const order = await pool.query(ownershipCheck, params);
+  
+  if (order.rowCount === 0) {
+    return null; // Orden no encontrada o no pertenece al usuario
+  }
+  
+  const items = await pool.query(
+    `SELECT oi.*, p.name FROM order_items oi 
+     LEFT JOIN products p ON oi.product_id = p.id 
+     WHERE oi.order_id = $1`, 
+    [orderId]
+  );
+  
   return { order: order.rows[0], items: items.rows };
 }

@@ -9,17 +9,33 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   role VARCHAR(20) DEFAULT 'pending',
   photo_url TEXT,
-  created_at TIMESTAMP DEFAULT NOW()
+  token_version INTEGER DEFAULT 1,
+  failed_login_attempts INTEGER DEFAULT 0,
+  locked_until TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Tabla refresh tokens
+-- Índice para búsquedas por email
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- Tabla refresh tokens con seguridad mejorada
 CREATE TABLE IF NOT EXISTS refresh_tokens (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  token VARCHAR(255) NOT NULL,
+  token_hash VARCHAR(64) NOT NULL UNIQUE,
   expires_at TIMESTAMP NOT NULL,
+  user_agent TEXT,
+  ip_address VARCHAR(45),
+  last_used_at TIMESTAMP DEFAULT NOW(),
+  revoked_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Índices para refresh_tokens
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_hash ON refresh_tokens(token_hash);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires ON refresh_tokens(expires_at);
 
 -- Tabla productos
 CREATE TABLE IF NOT EXISTS products (

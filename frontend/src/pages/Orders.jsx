@@ -6,7 +6,7 @@ import "./Orders.css";
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
-  const user = auth.getUser();
+  const [user] = useState(auth.getUser());
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -28,7 +28,7 @@ export default function Orders() {
     };
 
     fetchOrders();
-  }, [user]);
+  }, []); // Solo se ejecuta una vez al montar
 
   const formatPrice = (value) =>
     new Intl.NumberFormat("es-CO", {

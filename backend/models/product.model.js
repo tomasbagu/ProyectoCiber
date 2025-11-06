@@ -20,3 +20,16 @@ export async function getProductById(id) {
   const res = await pool.query(`SELECT * FROM products WHERE id = $1`, [id]);
   return res.rows[0];
 }
+
+export async function updateProduct(id, { name, description, price_cents, image_url }) {
+  const res = await pool.query(
+    `UPDATE products SET name = $1, description = $2, price_cents = $3, image_url = COALESCE($4, image_url) WHERE id = $5 RETURNING *`,
+    [name, description, price_cents, image_url, id]
+  );
+  return res.rows[0];
+}
+
+export async function deleteProduct(id) {
+  const res = await pool.query(`DELETE FROM products WHERE id = $1 RETURNING *`, [id]);
+  return res.rows[0];
+}
