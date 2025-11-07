@@ -4,7 +4,7 @@ import { auth } from "../auth/auth";
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api`,
   headers: { "Content-Type": "application/json" },
-  withCredentials: false,
+  withCredentials: true, // OWASP: Enviar cookies httpOnly automáticamente
   timeout: 30000, // 30 segundos timeout
 });
 
@@ -78,37 +78,28 @@ api.interceptors.response.use(
     }
 
     // Iniciar proceso de refresh
-    const refreshToken = auth?.getRefresh();
-    
-    if (!refreshToken) {
-      auth?.clear();
-      window.location.href = "/login?error=session_expired";
-      return Promise.reject(error);
-    }
-
+    // OWASP: Ya no enviamos refresh token, se lee desde httpOnly cookie
     refreshing = true;
 
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
-        { refreshToken },
+        {}, // Sin body, cookie se envía automáticamente
         {
           headers: { "Content-Type": "application/json" },
+          withCredentials: true, // Importante para enviar cookies
           timeout: 10000,
         }
       );
 
-      const { accessToken, refreshToken: newRefreshToken } = response.data;
+      const { accessToken } = response.data;
 
       if (!accessToken) {
         throw new Error("No access token received");
       }
 
-      // Actualizar tokens
-      auth?.setSession({ 
-        accessToken, 
-        refreshToken: newRefreshToken || refreshToken 
-      });
+      // OWASP: Solo actualizar access token (refresh está en cookie)
+      auth?.setSession({ accessToken });
 
       // Procesar cola de peticiones fallidas
       processQueue(null, accessToken);
@@ -148,31 +139,29 @@ const schedulePreventiveRefresh = () => {
     clearTimeout(preventiveRefreshTimeout);
   }
 
-  if (!auth?.isTokenExpiringSoon || !auth?.getRefresh) {
+  if (!auth?.isTokenExpiringSoon) {
     return; // auth aún no está inicializado
   }
 
-  if (auth.isTokenExpiringSoon() && auth.getRefresh()) {
+  if (auth.isTokenExpiringSoon()) {
     // Hacer refresh preventivo 1 minuto antes de expirar
     const timeRemaining = auth.getTokenTimeRemaining();
     const refreshIn = Math.max(0, (timeRemaining - 60) * 1000);
 
     preventiveRefreshTimeout = setTimeout(async () => {
       try {
-        const refreshToken = auth.getRefresh();
-        if (!refreshToken) return;
-
+        // OWASP: Sin refresh token en body, se lee desde cookie
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
-          { refreshToken },
-          { headers: { "Content-Type": "application/json" } }
+          {},
+          { 
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true
+          }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-        auth?.setSession({ 
-          accessToken, 
-          refreshToken: newRefreshToken || refreshToken 
-        });
+        const { accessToken } = response.data;
+        auth?.setSession({ accessToken });
 
         // Programar próximo refresh
         schedulePreventiveRefresh();

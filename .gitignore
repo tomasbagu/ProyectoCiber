@@ -3,6 +3,12 @@
 .env.local
 .env.*.local
 
+# Certificados SSL (generados por mkcert)
+certs/
+*.pem
+*.key
+*.crt
+
 # Docker
 docker-compose.override.yml
 

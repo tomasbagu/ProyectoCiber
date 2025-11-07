@@ -75,13 +75,11 @@ class SecureStorage {
 const storage = new SecureStorage("arepabuelas-2025-secret-key");
 
 export const auth = {
-  setSession({ accessToken, refreshToken, user }) {
+  setSession({ accessToken, user }) {
     if (accessToken) {
       storage.set(ACCESS_KEY, accessToken);
     }
-    if (refreshToken) {
-      storage.set(REFRESH_KEY, refreshToken);
-    }
+    // OWASP: Refresh token ya NO se guarda en localStorage (está en httpOnly cookie)
     if (user) {
       storage.set(USER_KEY, JSON.stringify(user));
     }
@@ -97,8 +95,9 @@ export const auth = {
     return storage.get(ACCESS_KEY);
   },
 
+  // OWASP: Ya no exponemos refresh token al frontend
   getRefresh() {
-    return storage.get(REFRESH_KEY);
+    return null; // Refresh token está en httpOnly cookie
   },
 
   getUser() {
@@ -134,11 +133,8 @@ export const auth = {
 
   async logout() {
     try {
-      const refreshToken = this.getRefresh();
-      if (refreshToken) {
-        // No esperar respuesta para mejorar UX
-        api.post("/auth/logout", { refreshToken }).catch(() => {});
-      }
+      // OWASP: No enviar refresh token, se lee desde cookie httpOnly
+      await api.post("/auth/logout").catch(() => {});
     } catch (err) {
       // Silenciar errores de logout
     } finally {

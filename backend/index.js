@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser";
 
 import couponRoutes from "./routes/coupon.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -15,6 +16,11 @@ import ordersRoutes from "./routes/orders.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
 
 const app = express();
+
+// IMPORTANTE: Confiar en proxy para obtener IP real (si estás detrás de nginx/load balancer)
+if (process.env.NODE_ENV === "production") {
+  app.set('trust proxy', 1); // Confiar en el primer proxy
+}
 
 // CORS configurado de forma segura
 app.use(cors({
@@ -32,7 +38,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       connectSrc: ["'self'"], // Solo desde el mismo origen
-      imgSrc: ["'self'", "data:", "https:", "http:"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "http:"], // Agregar blob: para previews
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
@@ -66,6 +72,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 app.use(express.json({ limit: '10mb' })); // Limitar tamaño de JSON
+app.use(cookieParser()); // Parser de cookies
 
 // ============================================
 // RATE LIMITING - Protección contra fuerza bruta y DDoS
@@ -80,8 +87,6 @@ const generalLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  // Confiar en proxy para obtener IP real (importante en producción con nginx/load balancer)
-  trustProxy: process.env.NODE_ENV === "production",
 });
 
 // Rate limiter estricto para autenticación (prevenir fuerza bruta)
@@ -95,7 +100,6 @@ const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === "production",
 });
 
 // Rate limiter para registro (prevenir spam de cuentas)
@@ -108,7 +112,6 @@ const registerLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === "production",
 });
 
 // Rate limiter para creación de contenido (prevenir spam)
@@ -121,7 +124,6 @@ const createContentLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === "production",
 });
 
 // Aplicar rate limiter general a toda la API

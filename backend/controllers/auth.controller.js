@@ -260,9 +260,17 @@ export async function login(req, res) {
       photo_url: user.photo_url
     };
 
+    // OWASP: Guardar refresh token en httpOnly cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,      // No accesible desde JavaScript
+      secure: process.env.NODE_ENV === 'production', // Solo HTTPS en producción
+      sameSite: 'strict',  // Protección CSRF
+      maxAge: REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000, // 30 días
+      path: '/api/auth'    // Solo enviarlo a endpoints de auth
+    });
+
     return res.json({
       accessToken,
-      refreshToken,
       user: safeUser,
     });
   } catch (err) {
@@ -272,10 +280,14 @@ export async function login(req, res) {
 
 export async function refresh(req, res) {
   try {
-    const { refreshToken } = req.body;
+    // OWASP: Leer refresh token desde httpOnly cookie
+    const refreshToken = req.cookies.refreshToken;
     
     if (!refreshToken || typeof refreshToken !== "string") {
-      return res.status(400).json({ error: "Refresh token requerido" });
+      return res.status(401).json({ 
+        error: "Refresh token no encontrado",
+        code: "NO_REFRESH_TOKEN"
+      });
     }
 
     // Hashear el token para buscar en BD
@@ -341,9 +353,17 @@ export async function refresh(req, res) {
       tokenVersion.toString()
     );
 
+    // OWASP: Actualizar refresh token en httpOnly cookie
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000,
+      path: '/api/auth'
+    });
+
     return res.json({ 
-      accessToken, 
-      refreshToken: newRefreshToken 
+      accessToken
     });
   } catch (err) {
     return res.status(500).json({ error: "Error en refresh token" });
@@ -352,14 +372,21 @@ export async function refresh(req, res) {
 
 export async function logout(req, res) {
   try {
-    const { refreshToken } = req.body;
+    // OWASP: Leer refresh token desde httpOnly cookie
+    const refreshToken = req.cookies.refreshToken;
     
-    if (!refreshToken) {
-      return res.status(400).json({ error: "Refresh token requerido" });
+    if (refreshToken) {
+      const tokenHash = hashRefreshToken(refreshToken);
+      await tokenModel.deleteRefreshToken(tokenHash);
     }
 
-    const tokenHash = hashRefreshToken(refreshToken);
-    await tokenModel.deleteRefreshToken(tokenHash);
+    // OWASP: Limpiar cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api/auth'
+    });
     
     return res.json({ message: "Sesión cerrada" });
   } catch (err) {
@@ -377,6 +404,14 @@ export async function logoutAll(req, res) {
     }
 
     await tokenModel.deleteAllRefreshTokensForUser(req.user.id);
+
+    // OWASP: Limpiar cookie actual
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api/auth'
+    });
     
     return res.json({ message: "Todas las sesiones cerradas" });
   } catch (err) {
