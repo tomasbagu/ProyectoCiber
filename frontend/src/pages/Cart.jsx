@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { sanitizeText } from "../utils/sanitizeHTML";
 import "./Cart.css";
 
 export default function Cart() {
@@ -140,11 +141,11 @@ export default function Cart() {
                 <div className="cart-item-left">
                   <img
                     src={item.image_url || item.image || "/placeholder.jpg"}
-                    alt={item.name}
+                    alt={sanitizeText(item.name)}
                     className="cart-item-img"
                   />
                   <div className="cart-item-info">
-                    <h3>{item.name}</h3>
+                    <h3>{sanitizeText(item.name)}</h3>
                     <p>{formatPrice(item.price_cents)}</p>
                   </div>
                 </div>

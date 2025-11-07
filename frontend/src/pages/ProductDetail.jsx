@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import DOMPurify from "dompurify";
+import { sanitizeText } from "../utils/sanitizeHTML";
 import "./ProductDetail.css";
 
 export default function ProductDetail() {
@@ -124,8 +125,8 @@ export default function ProductDetail() {
 
         <div className="pd-info">
           <span className="pd-tag">Especiales</span>
-          <h1>{product.name}</h1>
-          <p className="pd-description">{product.description}</p>
+          <h1>{sanitizeText(product.name)}</h1>
+          <p className="pd-description">{sanitizeText(product.description)}</p>
 
           <p className="pd-price">{formatPrice(product.price_cents)}</p>
 
@@ -186,7 +187,7 @@ export default function ProductDetail() {
                 key={c.id || `${c.user}_${c.created_at}`}
               >
                 <div className="pd-comment-head">
-                  <strong>{c.user_name || "Usuario"}</strong>
+                  <strong>{sanitizeText(c.user_name || "Usuario")}</strong>
                   <span className="pd-comment-date">
                     {new Date(c.created_at).toLocaleString("es-CO")}
                   </span>
@@ -194,7 +195,7 @@ export default function ProductDetail() {
                 <div className="pd-comment-rating">
                   {"★".repeat(c.rating || 0)}{"☆".repeat(5 - (c.rating || 0))}
                 </div>
-                <p className="pd-comment-text">{c.content}</p>
+                <p className="pd-comment-text">{sanitizeText(c.content)}</p>
               </div>
             ))
           )}

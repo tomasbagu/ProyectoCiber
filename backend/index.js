@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import rateLimit from "express-rate-limit";
 
 import couponRoutes from "./routes/coupon.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -30,24 +31,33 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
+      connectSrc: ["'self'"], // Solo desde el mismo origen
       imgSrc: ["'self'", "data:", "https:", "http:"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'", "data:"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      upgradeInsecureRequests: process.env.NODE_ENV === "production" ? [] : null,
     },
   },
   hsts: {
-    maxAge: 31536000,
+    maxAge: 31536000, // 1 año
     includeSubDomains: true,
     preload: true
   },
   noSniff: true,
   referrerPolicy: { policy: "strict-origin-when-cross-origin" },
   xssFilter: true,
+  hidePoweredBy: true, // Ocultar header X-Powered-By
+  frameguard: { action: 'deny' }, // Prevenir clickjacking
+  dnsPrefetchControl: { allow: false }, // Desactivar DNS prefetching
+  ieNoOpen: true, // Para IE8+
+  permittedCrossDomainPolicies: { permittedPolicies: "none" },
 }));
 
 // Logging en modo desarrollo
@@ -57,12 +67,102 @@ if (process.env.NODE_ENV !== "production") {
 
 app.use(express.json({ limit: '10mb' })); // Limitar tamaño de JSON
 
+// ============================================
+// RATE LIMITING - Protección contra fuerza bruta y DDoS
+// ============================================
+
+// Rate limiter general para toda la API
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // 100 requests por ventana por IP
+  message: {
+    error: "Demasiadas solicitudes desde esta IP, por favor intenta más tarde."
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Confiar en proxy para obtener IP real (importante en producción con nginx/load balancer)
+  trustProxy: process.env.NODE_ENV === "production",
+});
+
+// Rate limiter estricto para autenticación (prevenir fuerza bruta)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // Solo 5 intentos de login
+  skipSuccessfulRequests: true, // No contar requests exitosos
+  message: {
+    error: "Demasiados intentos de autenticación. Cuenta bloqueada temporalmente.",
+    code: "RATE_LIMIT_EXCEEDED"
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === "production",
+});
+
+// Rate limiter para registro (prevenir spam de cuentas)
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 3, // Solo 3 registros por hora por IP
+  message: {
+    error: "Demasiados intentos de registro. Por favor intenta más tarde.",
+    code: "RATE_LIMIT_EXCEEDED"
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === "production",
+});
+
+// Rate limiter para creación de contenido (prevenir spam)
+const createContentLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minuto
+  max: 10, // 10 comentarios/productos por minuto
+  message: {
+    error: "Estás creando contenido demasiado rápido. Por favor espera un momento.",
+    code: "RATE_LIMIT_EXCEEDED"
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === "production",
+});
+
+// Aplicar rate limiter general a toda la API
+app.use('/api/', generalLimiter);
+
 // Headers de seguridad adicionales
 app.use((req, res, next) => {
+  // Prevenir MIME type sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
+  
+  // Prevenir clickjacking
   res.setHeader('X-Frame-Options', 'DENY');
+  
+  // Habilitar protección XSS del navegador
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  
+  // HSTS - Forzar HTTPS (solo en producción)
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
+  
+  // Referrer Policy
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Permissions Policy (antes Feature Policy)
+  res.setHeader('Permissions-Policy', 
+    'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
+  );
+  
+  // No revelar información del servidor
+  res.removeHeader('X-Powered-By');
+  
+  // Prevenir DNS prefetching
+  res.setHeader('X-DNS-Prefetch-Control', 'off');
+  
+  // Prevenir download de archivos que no son del mismo origen
+  res.setHeader('X-Download-Options', 'noopen');
+  
+  // Cross-Domain Policies
+  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  
   next();
 });
 
@@ -71,11 +171,13 @@ ensureBucket().catch((err) => {
   process.exit(1);
 });
 
-// rutas
+// rutas con rate limiting específico
+app.use("/api/auth/login", authLimiter); // Proteger login
+app.use("/api/auth/register", registerLimiter); // Proteger registro
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productsRoutes);
-app.use("/api/comments", commentsRoutes);
+app.use("/api/comments", createContentLimiter, commentsRoutes); // Proteger comentarios
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/coupons", couponRoutes);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // 👈 Importamos para navegar
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { sanitizeText } from "../utils/sanitizeHTML";
 import "./Products.css";
 
 export default function Products() {
@@ -81,11 +82,11 @@ export default function Products() {
               <div className="product-image">
                 <img
                   src={p.image_url || "/placeholder.jpg"}
-                  alt={p.name}
+                  alt={sanitizeText(p.name)}
                 />
               </div>
               <div className="product-info">
-                <h3>{p.name}</h3>
+                <h3>{sanitizeText(p.name)}</h3>
                 <p>{formatPrice(p.price_cents)}</p>
               </div>
             </div>

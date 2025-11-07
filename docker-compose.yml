@@ -20,9 +20,11 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    ports:
-      - "9000:9000" # API
-      - "9001:9001" # consola web
+    # SEGURIDAD: Puertos NO expuestos públicamente, solo accesibles dentro de la red Docker
+    # El backend accede a MinIO internamente, no es necesario exponer los puertos
+    # Si necesitas la consola web para desarrollo, descomenta temporalmente:
+    # ports:
+    #   - "9001:9001" # consola web (solo para desarrollo local)
     volumes:
       - minio_data:/data
     networks:

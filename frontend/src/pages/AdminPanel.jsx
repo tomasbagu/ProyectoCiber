@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../api/axios";
+import { sanitizeText } from "../utils/sanitizeHTML";
 import "./AdminPanel.css";
 
 export default function AdminPanel() {
@@ -184,16 +185,18 @@ export default function AdminPanel() {
           <div className="product-item" key={p.id}>
             <img
               src={p.image_url || "/placeholder.jpg"}
-              alt={p.name}
+              alt={sanitizeText(p.name)}
               className="product-img"
             />
 
             <div className="product-info">
-              <h3>{p.name}</h3>
+              <h3>{sanitizeText(p.name)}</h3>
               <p className="product-description">
-                {p.description?.length > 100
-                  ? p.description.slice(0, 100) + "..."
-                  : p.description}
+                {sanitizeText(
+                  p.description?.length > 100
+                    ? p.description.slice(0, 100) + "..."
+                    : p.description || ""
+                )}
               </p>
               <p className="product-price">
                 $
@@ -259,8 +262,8 @@ export default function AdminPanel() {
               <tbody>
                 {pendingUsers.map((user) => (
                   <tr key={user.id}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
+                    <td>{sanitizeText(user.name)}</td>
+                    <td>{sanitizeText(user.email)}</td>
                     <td>
                       {new Date(user.created_at).toLocaleString("es-CO")}
                     </td>
