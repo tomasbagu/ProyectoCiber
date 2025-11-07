@@ -7,7 +7,7 @@ import * as checkoutController from "../controllers/checkout.controller.js";
 const router = Router();
 const checkoutLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, message: { error: "Demasiadas solicitudes al checkout" } });
 
-router.post("/", authRequired, checkoutLimiter, [
+router.post("/", checkoutLimiter, authRequired, [
   body("items").isArray({ min: 1 }),
   body("items.*.productId").isInt(),
   body("items.*.quantity").isInt({ min: 1 }),
