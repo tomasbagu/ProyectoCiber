@@ -89,23 +89,11 @@ Deberías ver 4 contenedores:
 
 ## 📋 Datos de ejemplo
 
-### Usuario Admin
-- **Email**: `admin@arepabuelas.com`
-- **Password**: `admin123`
-- **Rol**: admin
-
 ### Cupón de Bienvenida
 - **Código**: `AREPABUELA10`
 - **Descuento**: 10%
 - **Uso**: Una vez por usuario
 - **Límite**: Ilimitado (todos los usuarios pueden usarlo)
-
-### Productos Iniciales
-1. Arepa de Queso - $4.500
-2. Arepa Reina Pepiada - $6.500
-3. Arepa Pabellón - $8.500
-4. Arepa Domino - $5.500
-5. Arepa Pelua - $7.500
 
 ## 🔒 Características de seguridad
 
@@ -129,11 +117,6 @@ Deberías ver 4 contenedores:
 docker compose logs -f backend
 docker compose logs -f frontend
 docker compose logs -f db
-```
-
-### Acceder a la base de datos:
-```bash
-docker exec -it arepabuelas_db psql -U arepauser -d arepabuelas
 ```
 
 ### Reiniciar servicios:
